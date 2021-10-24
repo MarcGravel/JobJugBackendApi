@@ -31,7 +31,7 @@ def api_login():
                     token = secrets.token_urlsafe(16)
 
                     resp = pop_user_dict(user)
-                    resp["session_token"] = token
+                    resp["sessionToken"] = token
 
                     #add token+user to session table
                     db_commit("INSERT INTO user_session(user_id, session_token) VALUES(?,?)", [user[0], token])
@@ -44,6 +44,21 @@ def api_login():
             else:
                 return Response("Email does not exist in database", mimetype="text/plain", status=404)
         else:
-            return Response("Incorrect json data sent", mimetype="text/plain", status=400)
+            return Response("Incorrect data sent", mimetype="text/plain", status=400)
+    
+    elif request.method == 'DELETE':
+        data = request.json
+
+        if len(data.keys()) == 1 and {"sessionToken"} <= data.keys():
+            token = data.get("sessionToken")
+            is_token_valid = db_fetchone_index("SELECT EXISTS(SELECT * FROM user_session WHERE session_token=?)", [token])
+
+            if is_token_valid == 1:
+                db_commit("DELETE FROM user_session WHERE session_token=?", [token])
+                return Response(status=204)
+            else:
+                return Response("Token is not valid", mimetype="text/plain", status=400)       
+        else:
+            return Response("Incorrect data sent", mimetype="text/plain", status=400)   
     else:
         return Response("Method not allowed", mimetype="text/plain", status=405)
