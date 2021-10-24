@@ -1,4 +1,6 @@
 import re
+from app_package.functions.queryFunctions import db_fetchone, db_fetchone_index
+from flask import Response
 
 # Regular expression for email string
 def check_email(email):
@@ -48,3 +50,13 @@ def pop_job_emp(data):
         "notes": data[8]
     }
     return job
+
+def get_auth(token):
+    is_token_valid = db_fetchone_index("SELECT EXISTS(SELECT user_id FROM user_session WHERE session_token=?)", [token])
+    if is_token_valid == 1:
+        auth_level = db_fetchone("SELECT auth_level FROM users u INNER JOIN user_session s \
+                                ON u.id = s.user_id WHERE session_token=?", [token])    
+        return auth_level[0]
+    else:
+        return "invalid"
+
