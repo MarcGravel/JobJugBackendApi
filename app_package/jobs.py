@@ -267,11 +267,25 @@ def api_schedule():
                 return Response("Not a valid id number", mimetype="text/plain", status=400)
         else:
             return Response("No jobId sent", mimetype="text/plain", status=400)
+
+        #check id exists
+        id_valid = db_fetchone_index("SELECT EXISTS(SELECT id FROM jobs WHERE id=?)", [job_id])
+        if id_valid == 0:
+            return Response("jobId does not exist", mimetype="text/plain", status=400)
         
         #check valid session token and gets auth level
         auth_level = get_auth(token)
         if auth_level == "invalid":
             return Response("Invalid session Token", mimetype="text/plain", status=400)
+
+        #get current users id for authentication on patches
+        user_id = db_fetchone_index("SELECT user_id FROM user_session WHERE session_token=?", [token])
+
+        #check employee is only trying to update assigned jobs
+        if auth_level == "employee":
+            emp_assigned = db_fetchone_index("SELECT EXISTS(SELECT user_id FROM assigned_jobs WHERE user_id=? AND job_id=?)", [user_id, job_id])
+            if emp_assigned == 0:
+                return Response("job id not assigned to employee, cannot update", mimetype="text/plain", status=401)
 
         if len(data.keys()) >= 3 and len(data.keys()) <= 12:
             upd_job = pop_dict_req(data)
@@ -283,6 +297,11 @@ def api_schedule():
                 and upd_job["jobStatus"] != "completed" \
                 and upd_job["jobStatus"] != "archived":    
                 return Response("Invalid job status. active, completed, or archived only", mimetype="text/plain", status=400)
+            
+            if auth_level == "employee":
+                if upd_job["jobStatus"] == "active" or upd_job["jobStatus"] == "archived":
+                    return Response("Employees can only complete jobs")          
+                
             db_commit("UPDATE jobs SET job_status=? WHERE id=?", [upd_job["jobStatus"], job_id])
 
         if "completedDate" in upd_job:
@@ -359,7 +378,11 @@ def api_schedule():
                 status=200)
 
     elif request.method == 'DELETE':
-        pass
+        #if job is invoiced it cannot be deleted. Only can be archived.
+        #employees cannot delete jobs
+        data = request.json
+        token = data.get("sessionToken")
+        job_id = data.get("jobId")
 
     else:
         return Response("Method not allowed", mimetype="text/plain", status=405)
