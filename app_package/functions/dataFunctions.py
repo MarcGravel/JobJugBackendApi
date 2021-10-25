@@ -51,6 +51,7 @@ def pop_job_emp(data):
     }
     return job
 
+#checks session token valid and then grabs the auth level of token for return
 def get_auth(token):
     is_token_valid = db_fetchone_index("SELECT EXISTS(SELECT user_id FROM user_session WHERE session_token=?)", [token])
     if is_token_valid == 1:
@@ -59,4 +60,20 @@ def get_auth(token):
         return auth_level[0]
     else:
         return "invalid"
+
+#populates dict from client request and removes leading and trailing whitespaces
+def pop_dict_req(data):
+    new_dict = {
+    }
+    for k, v in data.items():
+        new_dict[k] = str(v).strip()
+
+    return new_dict
+
+#checks length is valid on input
+def check_length(input, min_len, max_len):
+    if len(input) >= min_len and len(input) <= max_len:
+        return True
+    else:
+        return False
 

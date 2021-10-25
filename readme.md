@@ -152,3 +152,54 @@ JSON Data Returned:
         },
     ]
 ```
+
+### POST
+HTTP success code: 201
+
+POST will create a new job. Only managers or admin can post new jobs
+
+All requests require a valid manager/admin session token included in the json data
+
+All request also require a title and jobStatus to be sent
+
+Other data is optional and not required for a successful job post.
+
+Required data: {"sessionToken", "title", "jobStatus"}
+Optional Data: {"location", "content", "scheduledDate", "completedDate", "cost", "charged", "invoiced", "clientId", "notes"}
+```json
+Example Data:
+
+JSON Data Sent:
+    {
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X", 
+        "jobId": 63,
+        "title": "Upgrade bedroom walls",
+        "location": "6131 43 E ave",
+        "content": "All bedrooms walls to be removed, new insulation placed, and new dryawall with fresh paint",
+        "scheduledDate": "2022-05-23",
+        "completedDate": null,
+        "cost": 2242.53,
+        "charged": 2950.00,
+        "jobStatus": "active",
+        "invoiced": 0,
+        "clientId": 3,
+        "notes": null
+    }
+
+JSON Data Returned: 
+    [
+        {
+            "jobId": 63,
+            "title": "Upgrade bedroom walls",
+            "location": "6131 43 E ave",
+            "content": "All bedrooms walls to be removed, new insulation placed, and new dryawall with fresh paint",
+            "scheduledDate": "2022-05-23",
+            "completedDate": null,
+            "cost": 2242.53,
+            "charged": 2950.00,
+            "jobStatus": "active",
+            "invoiced": 0,
+            "clientId": 3,
+            "notes": null
+        }
+    ]
