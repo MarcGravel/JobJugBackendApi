@@ -25,7 +25,7 @@ Werkzeug==2.0.2
 
 [User Login](#user-login-apilogin)
 
-[Jobs](#jobs=apijobs)
+[Jobs](#jobs-apijobs)
 
 # Usage
 
@@ -71,7 +71,7 @@ DELETE will destroy the session token.
 An error will be returned if the sessionToken is invalid.
 
 No data returned on success.    
-  
+
 Required data: {"loginToken"}
 ```json
 Example Data:
@@ -247,4 +247,29 @@ JSON Data Returned:
             "notes": null
         }
     ]
+```
+
+### DELETE
+HTTP success code: 204
+
+DELETE will delete a job from the database only if passes a few conditions
+
+Only managers and admin can delete jobs, employees cannot
+
+Jobs that are currently invoiced cannot be deleted, will return an error asking user to archive the job instead.
+
+Must send session token for validation as well as a job id to delete
+
+Required data: {"sessionToken", "jobId"}
+
+```json
+Example Data:
+
+JSON Data Sent:
+    {
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X", 
+        "jobId": 63,
+    }
+
+No JSON Data returned
 ```

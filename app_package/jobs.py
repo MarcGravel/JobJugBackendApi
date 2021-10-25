@@ -384,5 +384,33 @@ def api_schedule():
         token = data.get("sessionToken")
         job_id = data.get("jobId")
 
+        #check valid integer
+        if job_id != None:
+            if job_id.isdigit() == False:
+                return Response("Not a valid id number", mimetype="text/plain", status=400)
+        else:
+            return Response("No jobId sent", mimetype="text/plain", status=400)
+
+        #check id exists
+        id_valid = db_fetchone_index("SELECT EXISTS(SELECT id FROM jobs WHERE id=?)", [job_id])
+        if id_valid == 0:
+            return Response("jobId does not exist", mimetype="text/plain", status=400)
+        
+        #check valid session token and gets auth level
+        auth_level = get_auth(token)
+        if auth_level == "invalid":
+            return Response("Invalid session Token", mimetype="text/plain", status=400)
+
+        if auth_level == "employee":
+            return Response("Unauthorized to delete jobs", mimetype="text/plain", status=401)
+
+        #if job is invoiced, send error that job can only be archived, not deleted.
+        isInvoiced = db_fetchone_index("SELECT invoiced FROM jobs WHERE id=?", [job_id])
+        
+        if isInvoiced == 1:
+            return Response("Cannot delete invoiced jobs, please archive the job instead", mimetype="text/plain", status=401)
+        else:
+            db_commit("DELETE FROM jobs WHERE id=?", [job_id])
+            return Response(status=204)
     else:
         return Response("Method not allowed", mimetype="text/plain", status=405)
