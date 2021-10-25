@@ -51,8 +51,11 @@ def api_schedule():
                 job_id = params.get("jobId")
                 
                 #check valid integer
-                if job_id.isdigit() == False:
-                    return Response("Not a valid id number", mimetype="text/plain", status=400)
+                if job_id != None:
+                    if job_id.isdigit() == False:
+                        return Response("Not a valid id number", mimetype="text/plain", status=400)
+                else:
+                    return Response("No jobId sent", mimetype="text/plain", status=400)
 
                 #check exists and then returns values if exists
                 check_id_valid = db_fetchone_index("SELECT EXISTS(SELECT id FROM jobs WHERE id=?)", [job_id])
@@ -96,8 +99,11 @@ def api_schedule():
                 job_id = params.get("jobId")
 
                 #check valid integer
-                if job_id.isdigit() == False:
-                    return Response("Not a valid id number", mimetype="text/plain", status=400)
+                if job_id != None:
+                    if job_id.isdigit() == False:
+                        return Response("Not a valid id number", mimetype="text/plain", status=400)
+                else:
+                    return Response("No jobId sent", mimetype="text/plain", status=400)
 
                 #check exists and then returns values if exists
                 check_id_valid = db_fetchone_index("SELECT EXISTS(SELECT id FROM jobs WHERE id=?)", [job_id])
@@ -235,7 +241,7 @@ def api_schedule():
                 return Response("notes must be between 1 and 3,000 characters", mimetype="text/plain", status=400)
             db_commit("UPDATE jobs SET notes=? WHERE id=?", [new_job["notes"], job_id])
 
-        #get new job fromdb and send back in a valid dict
+        #get new job from db and send back in a valid dict
         req_new_job = db_fetchone("SELECT * FROM jobs WHERE id=?", [job_id])
         job_to_list = []
 
@@ -247,7 +253,110 @@ def api_schedule():
                 status=201)
 
     elif request.method == 'PATCH':
-        pass
+        #managers and admin can update all values except id
+        #employees can update completed_date, job_status, and notes.
+
+        #only manager or admin can post a job
+        data = request.json
+        token = data.get("sessionToken")
+        job_id = data.get("jobId")
+
+        #check valid integer
+        if job_id != None:
+            if job_id.isdigit() == False:
+                return Response("Not a valid id number", mimetype="text/plain", status=400)
+        else:
+            return Response("No jobId sent", mimetype="text/plain", status=400)
+        
+        #check valid session token and gets auth level
+        auth_level = get_auth(token)
+        if auth_level == "invalid":
+            return Response("Invalid session Token", mimetype="text/plain", status=400)
+
+        if len(data.keys()) >= 3 and len(data.keys()) <= 12:
+            upd_job = pop_dict_req(data)
+        else:
+            return Response("Invalid amount of data sent", mimetype="text/plain", status=400)
+
+        if "jobStatus" in upd_job:
+            if upd_job["jobStatus"] != "active" \
+                and upd_job["jobStatus"] != "completed" \
+                and upd_job["jobStatus"] != "archived":    
+                return Response("Invalid job status. active, completed, or archived only", mimetype="text/plain", status=400)
+            db_commit("UPDATE jobs SET job_status=? WHERE id=?", [upd_job["jobStatus"], job_id])
+
+        if "completedDate" in upd_job:
+                if not check_length(upd_job["completedDate"], 1, 50):
+                    return Response("completedDate must be a date", mimetype="text/plain", status=400)
+                db_commit("UPDATE jobs SET completed_date=? WHERE id=?", [upd_job["completedDate"], job_id])
+
+        if "notes" in upd_job:
+            if not check_length(upd_job["notes"], 1, 3000):
+                return Response("notes must be between 1 and 3,000 characters", mimetype="text/plain", status=400)
+            db_commit("UPDATE jobs SET notes=? WHERE id=?", [upd_job["notes"], job_id])
+
+        #updates below only for managers/admins
+        if auth_level == "manager" or auth_level == "admin":
+            if "title" in upd_job:
+                if not check_length(upd_job["title"], 1, 100):
+                    return Response("Title must be between 1 and 100 characters", mimetype="text/plain", status=400)
+                db_commit("UPDATE jobs SET title=? WHERE id=?", [upd_job["title"], job_id])
+            
+            if "location" in upd_job: 
+                if not check_length(upd_job["location"], 1, 100):
+                    return Response("location must be between 1 and 100 characters", mimetype="text/plain", status=400)
+                db_commit("UPDATE jobs SET location=? WHERE id=?", [upd_job["location"], job_id])
+
+            if "content" in upd_job:
+                if not check_length(upd_job["content"], 1, 15000):
+                    return Response("content must be between 1 and 15,000 characters", mimetype="text/plain", status=400)
+                db_commit("UPDATE jobs SET content=? WHERE id=?", [upd_job["content"], job_id])
+
+            if "scheduledDate" in upd_job:
+                if not check_length(upd_job["scheduledDate"], 1, 50):
+                    return Response("scheduledDate must be a date", mimetype="text/plain", status=400)
+                db_commit("UPDATE jobs SET scheduled_date=? WHERE id=?", [upd_job["scheduledDate"], job_id])
+
+            if "cost" in upd_job:
+                try:
+                    cost_float = float(upd_job["cost"])
+                    db_commit("UPDATE jobs SET cost=? WHERE id=?", [cost_float, job_id])
+                except ValueError:
+                    return Response("cost must be a number", mimetype="text/plain", status=400)
+
+            if "charged" in upd_job:
+                try:
+                    charged_float = float(upd_job["charged"])
+                    db_commit("UPDATE jobs SET charged=? WHERE id=?", [charged_float, job_id])
+                except ValueError:
+                    return Response("charged must be a number", mimetype="text/plain", status=400)
+            
+            if "invoiced" in upd_job:
+                if upd_job["invoiced"] == "0" or upd_job["invoiced"] == "1":
+                    toInt = int(upd_job["invoiced"])
+                    db_commit("UPDATE jobs SET invoiced=? WHERE id=?", [toInt, job_id])
+                else:
+                    return Response("Invoiced is a boolean expecting 0 or 1", mimetype="text/plain", status=400)
+
+            if "clientId" in upd_job:
+                client_exists = db_fetchone_index("SELECT EXISTS(SELECT id FROM clients WHERE id=?)", [upd_job["clientId"]])
+
+                if client_exists == 1:
+                    client_id = int(upd_job["clientId"])
+                    db_commit("UPDATE jobs SET client_id=? WHERE id=?", [client_id, job_id])
+                else:
+                    return Response("Client Id does not exist", mimetype="text/plain", status=400)
+
+        #get updated job from db and send back in a valid dict
+        req_new_job = db_fetchone("SELECT * FROM jobs WHERE id=?", [job_id])
+        job_to_list = []
+
+        job = pop_job_all(req_new_job)
+        job_to_list.append(job)
+
+        return Response(json.dumps(job_to_list, default=str),
+                mimetype="application/json",
+                status=200)
 
     elif request.method == 'DELETE':
         pass

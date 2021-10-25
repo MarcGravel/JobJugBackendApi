@@ -203,3 +203,48 @@ JSON Data Returned:
             "notes": null
         }
     ]
+```
+
+### PATCH
+HTTP success code: 200
+
+PATCH update information on an existing job
+
+Managers and admin can update anything, but employees can only update completedDate, jobStatus, and notes
+
+All requests require a valid session token and a valid job id included in the json data 
+
+Any amount of values can be updated in a single request so long as authorization is adheared to.
+
+Required data: {"sessionToken", "jobId"} + n amount of optional data.
+Optional Data: {"title", "jobStatus", "location", "content", "scheduledDate", "completedDate", "cost", "charged", "invoiced", "clientId", "notes"}
+```json
+Example Data:
+
+JSON Data Sent:
+    {
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X", 
+        "jobId": 63,
+        "completedDate": "2021-05-24",
+        "jobStatus": "complete",
+        "invoiced": 1
+    }
+
+JSON Data Returned: 
+    [
+        {
+            "jobId": 63,
+            "title": "Upgrade bedroom walls",
+            "location": "6131 43 E ave",
+            "content": "All bedrooms walls to be removed, new insulation placed, and new dryawall with fresh paint",
+            "scheduledDate": "2021-05-23",
+            "completedDate": "2021-05-24",
+            "cost": 2242.53,
+            "charged": 2950.00,
+            "jobStatus": "complete",
+            "invoiced": 1,
+            "clientId": 3,
+            "notes": null
+        }
+    ]
+```
