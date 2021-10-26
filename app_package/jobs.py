@@ -52,7 +52,7 @@ def api_jobs():
                 
                 #check valid integer
                 if job_id != None:
-                    if job_id.isdigit() == False:
+                    if str(job_id).isdigit() == False:
                         return Response("Not a valid id number", mimetype="text/plain", status=400)
                 else:
                     return Response("No jobId sent", mimetype="text/plain", status=400)
@@ -100,7 +100,7 @@ def api_jobs():
 
                 #check valid integer
                 if job_id != None:
-                    if job_id.isdigit() == False:
+                    if str(job_id).isdigit() == False:
                         return Response("Not a valid id number", mimetype="text/plain", status=400)
                 else:
                     return Response("No jobId sent", mimetype="text/plain", status=400)
@@ -256,14 +256,13 @@ def api_jobs():
         #managers and admin can update all values except id
         #employees can update completed_date, job_status, and notes.
 
-        #only manager or admin can post a job
         data = request.json
         token = data.get("sessionToken")
         job_id = data.get("jobId")
 
         #check valid integer
         if job_id != None:
-            if job_id.isdigit() == False:
+            if str(job_id).isdigit() == False:
                 return Response("Not a valid id number", mimetype="text/plain", status=400)
         else:
             return Response("No jobId sent", mimetype="text/plain", status=400)
@@ -386,7 +385,7 @@ def api_jobs():
 
         #check valid integer
         if job_id != None:
-            if job_id.isdigit() == False:
+            if str(job_id).isdigit() == False:
                 return Response("Not a valid id number", mimetype="text/plain", status=400)
         else:
             return Response("No jobId sent", mimetype="text/plain", status=400)
