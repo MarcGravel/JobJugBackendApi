@@ -61,4 +61,5 @@ def api_login():
         else:
             return Response("Incorrect data sent", mimetype="text/plain", status=400)   
     else:
-        return Response("Method not allowed", mimetype="text/plain", status=405)
+        print("Something went wrong at login request.method")
+        return Response("Request method not accepted", mimetype='text/plain', status=500)

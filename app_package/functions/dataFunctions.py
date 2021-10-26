@@ -51,6 +51,27 @@ def pop_job_emp(data):
     }
     return job
 
+def pop_user_all(data):
+    user = {
+        "userId": data[0],
+        "authLevel": data[1],
+        "name": data[2],
+        "email": data[3],
+        "phone": data[4],
+        "hourlyRate": data[5],
+    }
+    return user
+
+def pop_user_emp(data):
+    user = {
+        "userId": data[0],
+        "authLevel": data[1],
+        "name": data[2],
+        "email": data[3],
+        "phone": data[4],
+    }
+    return user
+
 #checks session token valid and then grabs the auth level of token for return
 def get_auth(token):
     is_token_valid = db_fetchone_index("SELECT EXISTS(SELECT user_id FROM user_session WHERE session_token=?)", [token])

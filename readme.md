@@ -212,6 +212,8 @@ PATCH update information on an existing job
 
 Managers and admin can update anything, but employees can only update completedDate, jobStatus, and notes
 
+Employees can only update jobStatus to "completed", they cannot reactivate a job or archive it.
+
 All requests require a valid session token and a valid job id included in the json data 
 
 Any amount of values can be updated in a single request so long as authorization is adheared to.

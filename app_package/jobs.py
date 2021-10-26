@@ -5,7 +5,7 @@ from app_package.functions.dataFunctions import pop_job_all, pop_job_emp, get_au
 from app_package.functions.queryFunctions import db_commit, db_fetchone, db_fetchone_index, db_fetchall_args, db_fetchone_index_noArgs
 
 @app.route('/api/jobs', methods=['GET', 'POST', 'PATCH', 'DELETE'])
-def api_schedule():
+def api_jobs():
     if request.method == 'GET':
         params = request.args
         token = request.headers.get("sessionToken")
@@ -72,9 +72,9 @@ def api_schedule():
                             mimetype="application/json",
                             status=200)
                 else:
-                    return Response("Not a valid Id number", mimetype="text/plain", status=400)
+                    return Response("Not a valid jobId number", mimetype="text/plain", status=400)
             else:
-                return Response("Incorrect data sent", mimetype="text/plain", status=400)
+                return Response("Incorrect json data sent", mimetype="text/plain", status=400)
 
         elif auth_level == "employee":
             if len(params.keys()) == 0:
@@ -133,7 +133,7 @@ def api_schedule():
             else: 
                     return Response("Unauthorized to view archived jobs", mimetype="text/plain", status=401)
         else: 
-            return Response("Invalid Authorization level", mimetype="text/plain", status=401)
+            return Response("Something went wrong. Invalid Authorization level", mimetype="text/plain", status=500)
 
     elif request.method == 'POST':
         #only manager or admin can post a job
@@ -413,4 +413,5 @@ def api_schedule():
             db_commit("DELETE FROM jobs WHERE id=?", [job_id])
             return Response(status=204)
     else:
-        return Response("Method not allowed", mimetype="text/plain", status=405)
+        print("Something went wrong at jobs request.method")
+        return Response("Request method not accepted", mimetype='text/plain', status=500)
