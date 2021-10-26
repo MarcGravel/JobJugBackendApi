@@ -173,6 +173,74 @@ JSON Data Returned:
     ]
 ```
 
+### PATCH 
+HTTP success code: 201
+
+PATCH will update users information
+
+Only managers and admins can update user info
+
+Employees can update their own passwords only
+
+Managers can update their own passwords only
+
+Admins can update all passwords
+
+Requires a valid session token as well as a userId to be passed in data
+
+Can update any amount of information in a single request
+
+Send userId of user to update
+
+Required Data: {"sessionToken", "userId"} + n amount of optional data
+
+Optional Data: {"name", "email", "password", "phone", "hourlyRate"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
+        "password": "secretpass123",
+    }
+
+JSON Data Returned: 
+    [
+        {
+            "userId": 14,
+            "authLevel": "employee",
+            "name": "Jerry Dean",
+            "email": "jdean@gmail.com",
+            "phone": "555-555-5533",
+            "hourlyRate": 28.5
+        }
+    ]
+```
+
+### DELETE
+HTTP success code: 204
+
+DELETE will delete a user from the database
+
+Only managers and admin can delete users
+
+Managers cannot delete admins
+
+Send userId of user to delete
+
+Required Data: {"sessionToken", "userId}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
+        "userId": "85",
+    }
+
+No JSON Data Returned: 
+```
+
 ## Jobs: /api/jobs
 The jobs end point supports GET, POST, PATCH, and DELETE methods.
 
