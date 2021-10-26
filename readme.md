@@ -25,6 +25,8 @@ Werkzeug==2.0.2
 
 [User Login](#user-login-apilogin)
 
+[Users](#users-apiusers)
+
 [Jobs](#jobs-apijobs)
 
 # Usage
@@ -42,7 +44,6 @@ Return data contains confirmation information about the user as well as a sessio
 An error will be returned if the login information is invalid.
 
 Required data: {"email", "password"}
-
 ```json
 Example Data:
 
@@ -84,8 +85,96 @@ JSON Data Sent:
 No Data Returned
 ```
 
+## Users: /api/users
+The users end point supports GET, POST, PATCH, and DELETE methods.
+
+### GET
+HTTP success code: 200
+
+All user auth levels can GET all users
+
+Employees will not receive hourly rate in the returned data
+
+All requests require valid session token in headers
+
+Send no params to receive all users data
+
+Send userId to receive data on specific user
+
+Example is a manager get request for specific user
+
+Required Data in headers: {"sessionToken"}
+
+Optional Params: {"userId"}
+```json
+Example Data:
+
+Headers: 
+    { 
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
+        "Content-Type": "application/json"
+    }
+
+JSON Params Sent:
+    { 
+        "userId": "14" 
+    }
+
+JSON Data Returned: 
+    [
+        {
+            "userId": 14,
+            "authLevel": "employee",
+            "name": "Jerry Dean",
+            "email": "jdean@gmail.com",
+            "phone": "555-555-5533",
+            "hourlyRate": 28.5
+        }
+    ]
+```
+
+### POST
+HTTP success code: 201
+
+Only managers and admin can post a new user
+
+Auth level must be: "admin" OR "manager" OR "employee"
+
+Emails must be unique and will return error on duplicate email submit
+
+Required Data: {"sessionToken", "authLevel", "name", "email", "password"}
+
+Optional Data: {"phone", "hourlyRate"}
+
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
+        "authLevel": "employee",
+        "name": "Jerry Dean",
+        "email": "jdean@gmail.com",
+        "password": "secretpass123",
+        "phone": "555-555-5533",
+        "hourlyRate": 28.5
+    }
+
+JSON Data Returned: 
+    [
+        {
+            "userId": 14,
+            "authLevel": "employee",
+            "name": "Jerry Dean",
+            "email": "jdean@gmail.com",
+            "phone": "555-555-5533",
+            "hourlyRate": 28.5
+        }
+    ]
+```
+
 ## Jobs: /api/jobs
-The login end point supports GET, POST, PATCH, and DELETE methods.
+The jobs end point supports GET, POST, PATCH, and DELETE methods.
 
 ### GET
 HTTP success code: 200
@@ -104,8 +193,9 @@ For a specific job, send the job id number. ex: {jobId: "2"}
 
 Remember, employees can only request jobs already assigned to them
 
-Required data in headers: {"sessionToken"}
-Optional Data: {jobStatus} OR {jobId}
+Required Data in headers: {"sessionToken"}
+
+Optional Params: {"jobStatus"} OR {"jobId"}
 ```json
 Example Data:
 
@@ -164,7 +254,8 @@ All request also require a title and jobStatus to be sent
 
 Other data is optional and not required for a successful job post.
 
-Required data: {"sessionToken", "title", "jobStatus"}
+Required Data: {"sessionToken", "title", "jobStatus"}
+
 Optional Data: {"location", "content", "scheduledDate", "completedDate", "cost", "charged", "invoiced", "clientId", "notes"}
 ```json
 Example Data:
@@ -172,10 +263,9 @@ Example Data:
 JSON Data Sent:
     {
         "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X", 
-        "jobId": 63,
         "title": "Upgrade bedroom walls",
         "location": "6131 43 E ave",
-        "content": "All bedrooms walls to be removed, new insulation placed, and new dryawall with fresh paint",
+        "content": "All bedrooms walls to be removed, new insulation placed, and new        dryawall with fresh paint",
         "scheduledDate": "2022-05-23",
         "completedDate": null,
         "cost": 2242.53,
@@ -218,7 +308,8 @@ All requests require a valid session token and a valid job id included in the js
 
 Any amount of values can be updated in a single request so long as authorization is adheared to.
 
-Required data: {"sessionToken", "jobId"} + n amount of optional data.
+Required Data: {"sessionToken", "jobId"} + n amount of optional data.
+
 Optional Data: {"title", "jobStatus", "location", "content", "scheduledDate", "completedDate", "cost", "charged", "invoiced", "clientId", "notes"}
 ```json
 Example Data:
@@ -262,7 +353,7 @@ Jobs that are currently invoiced cannot be deleted, will return an error asking 
 
 Must send session token for validation as well as a job id to delete
 
-Required data: {"sessionToken", "jobId"}
+Required Data: {"sessionToken", "jobId"}
 
 ```json
 Example Data:
