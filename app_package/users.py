@@ -335,8 +335,43 @@ def api_users():
                     status=201)
         else:
             return Response("Something went wrong, invalid authLevel", mimetype="text/plain", status=500)
+    
     elif request.method == 'DELETE':
-        pass
+        #managers and admin can delete users.
+        #managers cannot delete admins
+        data = request.json
+        token = data.get("sessionToken")
+        user_id = data.get("userId")
+
+        #check valid integer
+        if user_id != None:
+            if str(user_id).isdigit() == False:
+                return Response("Not a valid id number", mimetype="text/plain", status=400)
+        else:
+            return Response("No jobId sent", mimetype="text/plain", status=400)
+
+        #check id exists
+        id_valid = db_fetchone_index("SELECT EXISTS(SELECT id FROM users WHERE id=?)", [user_id])
+        if id_valid == 0:
+            return Response("userId does not exist", mimetype="text/plain", status=400)
+        
+        #check valid session token and gets auth level
+        auth_level = get_auth(token)
+        if auth_level == "invalid":
+            return Response("Invalid session Token", mimetype="text/plain", status=400)
+
+        if auth_level == "employee":
+            return Response("Unauthorized to delete users", mimetype="text/plain", status=401)
+
+        #get auth of passed userId and check if a manager is trying to delete an admin
+        auth_of_user_id = db_fetchone_index("SELECT auth_level FROM users WHERE id=?", [user_id])
+
+        if auth_level == "manager" and auth_of_user_id == "admin":
+            return Response("Unauthorized to delete admins", mimetype="text/plain", status=401)
+
+        db_commit("DELETE FROM users WHERE id=?", [user_id])
+        return Response(status=204)
+
     else:
         print("Something went wrong at users request.method")
         return Response("Request method not accepted", mimetype='text/plain', status=500)
