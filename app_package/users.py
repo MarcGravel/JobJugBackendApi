@@ -3,6 +3,7 @@ from flask import request, Response
 import json
 from app_package.functions.dataFunctions import get_auth, pop_user_all, pop_user_emp, pop_dict_req, check_length, check_email
 from app_package.functions.queryFunctions import db_commit, db_fetchall, db_fetchone, db_fetchone_index, db_fetchone_index_noArgs
+import bcrypt
 
 @app.route('/api/users', methods=['GET', 'POST', 'PATCH', 'DELETE'])
 def api_users():
@@ -170,12 +171,17 @@ def api_users():
         if "password" in new_user:
             if not check_length(new_user["password"], 6, 50):
                 return Response("password must be between 6 and 60 characters", mimetype="text/plain", status=400)
+
+            #salt and hash password
+            pw = new_user["password"]
+            salt = bcrypt.gensalt()
+            hashed_pass = bcrypt.hashpw(str(pw).encode(), salt)
         else:
             return Response("password is required to create new user", mimetype="text/plain", status=400)
 
         #create user
         db_commit("INSERT INTO users(auth_level, name, email, password) VALUES(?,?,?,?)", \
-                    [new_user["authLevel"], new_user["name"], new_user["email"], new_user["password"]])
+                    [new_user["authLevel"], new_user["name"], new_user["email"], hashed_pass])
         
         #get user id of newly insterted job to add data below
         created_user_id = db_fetchone_index_noArgs("SELECT MAX(id) FROM users")
@@ -224,7 +230,7 @@ def api_users():
             return Response("No userId sent", mimetype="text/plain", status=400)
 
         #check id exists
-        id_valid = db_fetchone_index("SELECT EXISTS(SELECT id FROM jobs WHERE id=?)", [user_id])
+        id_valid = db_fetchone_index("SELECT EXISTS(SELECT id FROM users WHERE id=?)", [user_id])
         if id_valid == 0:
             return Response("userId does not exist", mimetype="text/plain", status=400)
 
@@ -247,7 +253,13 @@ def api_users():
                 if "password" in upd_user:
                     if not check_length(upd_user["password"], 6, 50):
                         return Response("Password must be between 6 and 50 characters", mimetype="text/plain", status=400)
-                    db_commit("UPDATE users SET password=? WHERE id=?", [upd_user["password"], user_id])
+
+                    #salt and hash password
+                    pw = upd_user["password"]
+                    salt = bcrypt.gensalt()
+                    hashed_pass = bcrypt.hashpw(str(pw).encode(), salt)
+
+                    db_commit("UPDATE users SET password=? WHERE id=?", [hashed_pass, user_id])
 
                     #get updated user from db and send back in a valid dict. sending hourly rate back to employee as its own userId
                     req_upd_user = db_fetchone("SELECT id, auth_level, name, email, phone, hourly_rate FROM users WHERE id=?", [user_id])
@@ -308,8 +320,13 @@ def api_users():
                 
                 if not check_length(upd_user["password"], 6, 50):
                     return Response("password must be between 6 and 60 characters", mimetype="text/plain", status=400)
+
+                #salt and hash password
+                pw = str(upd_user["password"])
+                salt = bcrypt.gensalt()
+                hashed_pass = bcrypt.hashpw(pw.encode(), salt)
                 
-                db_commit("UPDATE users SET password=? WHERE id=?", [upd_user["password"], user_id])
+                db_commit("UPDATE users SET password=? WHERE id=?", [hashed_pass, user_id])
 
             if "phone" in upd_user:
                 if not check_length(upd_user["phone"], 7, 20):

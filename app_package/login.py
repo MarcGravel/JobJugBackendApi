@@ -4,6 +4,7 @@ from app_package.functions.dataFunctions import check_email, pop_user_dict
 from app_package.functions.queryFunctions import db_commit, db_fetchone, db_fetchone_index
 import secrets
 import json
+import bcrypt
 
 @app.route('/api/login', methods=['POST', 'DELETE'])
 def api_login():
@@ -26,7 +27,7 @@ def api_login():
                 user_pass = db_fetchone_index("SELECT password FROM users WHERE email=?", [email])
 
                 #validate pass, get user info, and generate token if valid
-                if password == user_pass:
+                if bcrypt.checkpw(str(password).encode(), str(user_pass).encode()):
                     user = db_fetchone("SELECT id, auth_level, name, email, phone FROM users WHERE email=?", [email])
                     token = secrets.token_urlsafe(16)
 
