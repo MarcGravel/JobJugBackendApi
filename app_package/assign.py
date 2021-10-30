@@ -1,7 +1,7 @@
 from app_package import app
 from flask import request, Response
-from app_package.functions.dataFunctions import get_auth, pop_user_all
-from app_package.functions.queryFunctions import db_commit, db_fetchone, db_fetchone_index, db_fetchall_args, db_fetchone_index_noArgs
+from app_package.functions.dataFunctions import get_auth, pop_user_emp
+from app_package.functions.queryFunctions import db_commit, db_fetchone, db_fetchone_index, db_fetchall_args
 import json
 
 @app.route('/api/assign', methods=['GET', 'POST', 'DELETE'])
@@ -39,7 +39,7 @@ def api_assign():
 
                 for u in user_id_list:
                     user = db_fetchone("SELECT id, auth_level, name, email, phone FROM users WHERE id=?", [u])
-                    updated_user = pop_user_all(user)
+                    updated_user = pop_user_emp(user)
                     user_list.append(updated_user)
                 
                 return Response (json.dumps(user_list),
