@@ -7,3 +7,4 @@ app = Flask(__name__)
 from app_package import login
 from app_package import jobs
 from app_package import users
+from app_package import assignJob
