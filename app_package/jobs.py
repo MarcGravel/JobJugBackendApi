@@ -3,6 +3,7 @@ from flask import request, Response
 import json
 from app_package.functions.dataFunctions import pop_job_all, pop_job_emp, get_auth, pop_dict_req, check_length
 from app_package.functions.queryFunctions import db_commit, db_fetchone, db_fetchone_index, db_fetchall_args, db_fetchone_index_noArgs
+import datetime
 
 @app.route('/api/jobs', methods=['GET', 'POST', 'PATCH', 'DELETE'])
 def api_jobs():
@@ -299,7 +300,20 @@ def api_jobs():
             
             if auth_level == "employee":
                 if upd_job["jobStatus"] == "active" or upd_job["jobStatus"] == "archived":
-                    return Response("Employees can only complete jobs")          
+                    return Response("Employees can only complete jobs")   
+
+            if upd_job["jobStatus"] == "completed":
+                print("test")
+
+                #only sets auto date if date was not specified by user. This ensures users can click complete on jobs completed on previous dates
+                if not "completedDate" in upd_job:
+                    #if user is updating job to completed, get current date and set as completedDate
+                    getDate = str(datetime.date.today())
+
+                    upd_job["completedDate"] = getDate;
+
+                print(upd_job["completedDate"])
+
                 
             db_commit("UPDATE jobs SET job_status=? WHERE id=?", [upd_job["jobStatus"], job_id])
 

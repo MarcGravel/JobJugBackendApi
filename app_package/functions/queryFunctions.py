@@ -180,8 +180,8 @@ def db_commit(query, args):
         print("Something is wrong with the data - db_commit")
         return Response("Something is wrong with the data", mimetype='text/plain', status=404)
     except mariadb.OperationalError:
-        print("Something is wrong with your connection - db_commit")
-        return Response("Something is wrong with the connection", mimetype='text/plain', status=500)
+        print("Incorrect date value - db_commit")
+        return Response("Incorrect date value", mimetype='text/plain', status=500)
     except:
         print("Something went wrong - db_commit")
         return Response("Something went wrong", status=500)
