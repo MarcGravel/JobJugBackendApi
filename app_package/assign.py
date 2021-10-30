@@ -15,9 +15,6 @@ def api_assign():
         if auth_level == "invalid":
             return Response("Invalid session Token", mimetype="text/plain", status=400)
 
-        if auth_level != "manager" and auth_level != "admin":
-            return Response("Not authorized to access this data", mimetype="text/plain", status=401)
-
         if len(params.keys()) == 1 and {"jobId"} <= params.keys():
             job_id = params.get("jobId")
 
@@ -41,7 +38,7 @@ def api_assign():
                 user_list = []
 
                 for u in user_id_list:
-                    user = db_fetchone("SELECT id, auth_level, name, email, phone, hourly_rate FROM users WHERE id=?", [u])
+                    user = db_fetchone("SELECT id, auth_level, name, email, phone FROM users WHERE id=?", [u])
                     updated_user = pop_user_all(user)
                     user_list.append(updated_user)
                 
