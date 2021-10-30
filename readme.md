@@ -29,6 +29,8 @@ Werkzeug==2.0.2
 
 [Jobs](#jobs-apijobs)
 
+[Assign Job](#assign-apiassign)
+
 # Usage
 
 ## User Login: /api/login
@@ -433,4 +435,101 @@ JSON Data Sent:
     }
 
 No JSON Data returned
+```
+
+## Assign Job: /api/assign
+The login end point supports the GET, POST and DELETE methods.
+
+### GET
+HTTP success code: 200
+
+GET will get all users assigned to specified job
+
+Will return a list of user information
+
+Only managers and admin can GET assignments
+
+Required data: {"sessionToken", "jobId"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X", 
+        "jobId": 63,
+    }
+
+JSON Data Returned:
+    [ 
+        { 
+            "userId": 2,
+            "auth": "employee",
+            "name": "John Smith",
+            "email": "john@gmail.com",
+            "phone": "555-555-2323",
+            "hourlyRate": "27"
+        },
+        { 
+            "userId": 7,
+            "auth": "employee",
+            "name": "Tim Doe",
+            "email": "tim@gmail.com",
+            "phone": "555-555-7763",
+            "hourlyRate": "21.5"
+        }
+    ] 
+```
+
+### POST
+HTTP success code: 201
+
+POST will assign a specified user to a specified job
+
+Will return a success message in JSON format
+
+Only managers and admin can POST assignments
+
+Error returned if user is already assigned to the job
+
+Required data: {"sessionToken", "userId", "jobId"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
+        "userId": 7, 
+        "jobId": 63,
+    }
+
+JSON Data Returned:
+    { 
+        "message": "user is assigned to job"
+    }
+
+```
+
+### DELETE
+HTTP success code: 204
+
+DELETE will remove a specified user to a specified job
+
+Only managers and admin can DELETE assignments
+
+Error returned if user is not assigned to job
+
+No return Response
+
+Required data: {"sessionToken", "userId", "jobId"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
+        "userId": 7, 
+        "jobId": 63,
+    }
+
+No JSON Data Returned
 ```

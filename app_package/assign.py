@@ -4,8 +4,8 @@ from app_package.functions.dataFunctions import get_auth, pop_user_all
 from app_package.functions.queryFunctions import db_commit, db_fetchone, db_fetchone_index, db_fetchall_args, db_fetchone_index_noArgs
 import json
 
-@app.route('/api/assignjob', methods=['GET', 'POST', 'DELETE'])
-def api_assign_job():
+@app.route('/api/assign', methods=['GET', 'POST', 'DELETE'])
+def api_assign():
     if request.method == 'GET':
         params = request.args
         token = request.headers.get("sessionToken")
