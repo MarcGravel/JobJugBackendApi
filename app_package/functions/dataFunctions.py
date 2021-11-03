@@ -62,6 +62,17 @@ def pop_user_all(data):
     }
     return user
 
+def pop_client_all(data):
+    client = {
+        "clientId": data[0],
+        "name": data[1],
+        "company": data[2],
+        "address": data[3],
+        "email": data[4],
+        "phone": data[5],
+    }
+    return client
+
 def pop_user_emp(data):
     user = {
         "userId": data[0],

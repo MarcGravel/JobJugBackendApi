@@ -8,3 +8,4 @@ from app_package import login
 from app_package import jobs
 from app_package import users
 from app_package import assign
+from app_package import clients

@@ -188,13 +188,16 @@ def api_users():
         
         #if data exists for other columns, validate then update row
         if "phone" in new_user:
-            if not check_length(new_user["phone"], 7, 20):
+            if not check_length(new_user["phone"], 0, 20):
                 db_commit("DELETE FROM users WHERE id=?", [created_user_id])
                 return Response("phone number must be between 7 and 20 characters", mimetype="text/plain", status=400)
             db_commit("UPDATE users SET phone=? WHERE id=?", [new_user["phone"], created_user_id])
         
         if "hourlyRate" in new_user:
             try:
+                if (new_user["hourlyRate"] == ''):
+                    new_user["hourlyRate"] = 0
+
                 rate_floated = float(new_user["hourlyRate"])
                 db_commit("UPDATE users SET hourly_rate=? WHERE id=?", [rate_floated, created_user_id])
             except ValueError:
