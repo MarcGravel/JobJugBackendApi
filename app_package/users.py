@@ -242,7 +242,7 @@ def api_users():
         if auth_level == "invalid":
             return Response("Invalid session Token", mimetype="text/plain", status=400)
 
-        #if employee, return unauthorized error
+        #if employee, only allow updates to self
         if auth_level == "employee":
 
             #check that userId to be updated belongs to current user
@@ -368,7 +368,7 @@ def api_users():
             if str(user_id).isdigit() == False:
                 return Response("Not a valid id number", mimetype="text/plain", status=400)
         else:
-            return Response("No jobId sent", mimetype="text/plain", status=400)
+            return Response("No userId sent", mimetype="text/plain", status=400)
 
         #check id exists
         id_valid = db_fetchone_index("SELECT EXISTS(SELECT id FROM users WHERE id=?)", [user_id])

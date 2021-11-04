@@ -130,7 +130,7 @@ def api_clients():
         if auth_level == "invalid":
             return Response("Invalid session Token", mimetype="text/plain", status=400)
 
-        if auth_level != "manager" and auth_level != "admin":
+        if auth_level != "manager" or auth_level != "admin":
             return Response("Not authorized to create a new client", mimetype="text/plain", status=401)
 
         if len(data.keys()) >= 2 and len(data.keys()) <= 6:
@@ -264,7 +264,34 @@ def api_clients():
                     status=201)
 
     elif request.method == 'DELETE':
-        pass
+        #managers and admin can delete clients
+        data = request.json
+        token = data.get("sessionToken")
+        client_id = data.get("clientId")
+
+        #check valid session token and gets auth level
+        auth_level = get_auth(token)
+        if auth_level == "invalid":
+            return Response("Invalid session Token", mimetype="text/plain", status=400)
+
+        if auth_level != "manager" and auth_level != "admin":
+            return Response("Unauthorized to delete clients", mimetype="text/plain", status=401)
+
+        #check valid integer
+        if client_id != None:
+            if str(client_id).isdigit() == False:
+                return Response("Not a valid id number", mimetype="text/plain", status=400)
+        else:
+            return Response("No clientId sent", mimetype="text/plain", status=400)
+
+        #check id exists
+        id_valid = db_fetchone_index("SELECT EXISTS(SELECT id FROM clients WHERE id=?)", [client_id])
+        if id_valid == 0:
+            return Response("clientId does not exist", mimetype="text/plain", status=400)
+
+        db_commit("DELETE FROM clients WHERE id=?", [client_id])
+        return Response(status=204)
+        
     else:
         print("Something went wrong at clients request.method")
         return Response("Request method not accepted", mimetype='text/plain', status=500)
