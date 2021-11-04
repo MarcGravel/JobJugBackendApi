@@ -31,6 +31,8 @@ Werkzeug==2.0.2
 
 [Assign Job](#assign-apiassign)
 
+[Clients](#clients-apiclients)
+
 # Usage
 
 ## User Login: /api/login
@@ -140,7 +142,7 @@ HTTP success code: 201
 
 Only managers and admin can post a new user
 
-Auth level must be: "admin" OR "manager" OR "employee"
+Auth level must be: "admin" OR "manager"
 
 Emails must be unique and will return error on duplicate email submit
 
@@ -159,7 +161,7 @@ JSON Data Sent:
         "email": "jdean@gmail.com",
         "password": "secretpass123",
         "phone": "555-555-5533",
-        "hourlyRate": 28.5
+        "hourlyRate": "28.5"
     }
 
 JSON Data Returned: 
@@ -283,17 +285,17 @@ JSON Params Sent:
 JSON Data Returned: 
     [
         {
-            "jobId": 634,
+            "jobId": "634",
             "title": "Westmount Condos",
             "location": "121 Westhills Road",
             "content": "Remove all drywall. Pull old insulation, repair top plate damage. Install new insullation and drywall. Mud/Tape.",
             "scheduledDate": "2020-11-19",
             "completedDate": "2020-11-21",
-            "cost": 2853.23,
-            "charged": 3625.00,
+            "cost": "2853.23",
+            "charged": "3625.00",
             "jobStatus": "archived",
-            "invoiced": 1,
-            "clientId": 53,
+            "invoiced": "1",
+            "clientId": "53",
             "notes": null
         },
         {
@@ -338,11 +340,11 @@ JSON Data Sent:
         "content": "All bedrooms walls to be removed, new insulation placed, and new        dryawall with fresh paint",
         "scheduledDate": "2022-05-23",
         "completedDate": null,
-        "cost": 2242.53,
-        "charged": 2950.00,
+        "cost": "2242.53",
+        "charged": "2950.00",
         "jobStatus": "active",
-        "invoiced": 0,
-        "clientId": 3,
+        "invoiced": "0",
+        "clientId": "3",
         "notes": null
     }
 
@@ -387,10 +389,10 @@ Example Data:
 JSON Data Sent:
     {
         "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X", 
-        "jobId": 63,
+        "jobId": "63",
         "completedDate": "2021-05-24",
         "jobStatus": "complete",
-        "invoiced": 1
+        "invoiced": "1"
     }
 
 JSON Data Returned: 
@@ -431,7 +433,7 @@ Example Data:
 JSON Data Sent:
     {
         "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X", 
-        "jobId": 63,
+        "jobId": "63",
     }
 
 No JSON Data returned
@@ -456,7 +458,7 @@ Example Data:
 JSON Data Sent:
     { 
         "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X", 
-        "jobId": 63,
+        "jobId": "63",
     }
 
 JSON Data Returned:
@@ -498,8 +500,8 @@ Example Data:
 JSON Data Sent:
     { 
         "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
-        "userId": 7, 
-        "jobId": 63,
+        "userId": "7", 
+        "jobId": "63",
     }
 
 JSON Data Returned:
@@ -527,9 +529,157 @@ Example Data:
 JSON Data Sent:
     { 
         "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
-        "userId": 7, 
-        "jobId": 63,
+        "userId": "7", 
+        "jobId": "63",
     }
 
 No JSON Data Returned
+```
+
+## Clients: /api/clients
+The clients end point supports GET, POST, PATCH, and DELETE methods.
+
+### GET
+HTTP success code: 200
+
+Managers and admins can GET all clients
+
+Employees can only GET clients that are attached to jobs the employee is assigned to
+
+All requests require valid session token in headers
+
+Send no params to receive all available client data as per authorization level
+
+Send clientId to receive data on specific client
+
+Error returned if employee sends clientId not assigned to them
+
+Required Data in headers: {"sessionToken"}
+
+Optional Params: {"clientId"}
+```json
+Example Data:
+
+Headers: 
+    { 
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
+        "Content-Type": "application/json"
+    }
+
+JSON Params Sent:
+    { 
+        "clientId": "14" 
+    }
+
+JSON Data Returned: 
+    [
+        {
+            "clientId": 14,
+            "name": "John Doe",
+            "company": "Some Company Inc.",
+            "address": "121 Westhills Road",
+            "email": "john.doe@gmail.com",
+            "phone": "604-555-2342"
+        }
+    ]
+```
+
+### POST
+HTTP success code: 201
+
+Only managers and admin can post a new client
+
+Auth level must be: "admin" OR "manager"
+
+No unique data required as companies can have shared emails and phone numbers
+
+Required Data: {"sessionToken", "name"}
+
+Optional Data: {"company", "address", "email", "phone"}
+
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
+        "name": "John Doe",
+        "company": "Some Company Inc.",
+        "address": "121 Westhills Road",
+        "email": "john.doe@gmail.com"
+    }
+
+JSON Data Returned: 
+    [
+        {
+            "userId": 14,
+            "name": "John Doe",
+            "company": "Some Company Inc.",
+            "address": "121 Westhills Road",
+            "email": "john.doe@gmail.com",
+            "phone": null
+        }
+    ]
+```
+
+### PATCH 
+HTTP success code: 201
+
+PATCH will update clients information
+
+Only managers and admins can update client info
+
+Requires a valid session token as well as a clientId to be passed in data
+
+Can update any amount of information in a single request and all info can be updated
+
+Send clientId of client to update
+
+Required Data: {"sessionToken", "clientId"} + n amount of optional data
+
+Optional Data: {"name", "company", "address", "email", "phone"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
+        "clientId": "14",
+        "company": "Updated Company Inc.",
+        "phone": "555-555-1234"
+    }
+
+JSON Data Returned: 
+    [
+        {
+            "userId": 14,
+            "name": "John Doe",
+            "company": "Updated Company Inc.",
+            "address": "121 Westhills Road",
+            "email": "john.doe@gmail.com",
+            "phone": "555-555-1234"
+        }
+    ]
+```
+
+### DELETE
+HTTP success code: 204
+
+DELETE will delete a client from the database
+
+Only managers and admin can delete clients
+
+Send clientId of client to delete
+
+Required Data: {"sessionToken", "clientId}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
+        "clientId": "14",
+    }
+
+No JSON Data Returned: 
 ```
