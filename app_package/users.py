@@ -136,7 +136,7 @@ def api_users():
         else:
             return Response("Invalid amount of data sent", mimetype="text/plain", status=400)
         
-        #validate all REQUIRED feilds then insert now user. Then check non required feilds if values exist
+        #validate all REQUIRED fields then insert new user. Then check non required fields if values exist
 
         if "authLevel" in new_user:
             #checks auth level value is valid
@@ -150,7 +150,7 @@ def api_users():
             return Response("authLevel is required to create new user", mimetype="text/plain", status=400)
 
         if "name" in new_user:
-            if not check_length(new_user["name"], 1, 100):
+            if not check_length(new_user["name"], 1, 60):
                 return Response("name must be between 1 and 60 characters", mimetype="text/plain", status=400)
         else:
             return Response("name is required to create new user", mimetype="text/plain", status=400)
@@ -183,7 +183,7 @@ def api_users():
         db_commit("INSERT INTO users(auth_level, name, email, password) VALUES(?,?,?,?)", \
                     [new_user["authLevel"], new_user["name"], new_user["email"], hashed_pass])
         
-        #get user id of newly insterted job to add data below
+        #get user id of newly inserted user to add data below
         created_user_id = db_fetchone_index_noArgs("SELECT MAX(id) FROM users")
         
         #if data exists for other columns, validate then update row
