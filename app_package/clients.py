@@ -130,7 +130,7 @@ def api_clients():
         if auth_level == "invalid":
             return Response("Invalid session Token", mimetype="text/plain", status=400)
 
-        if auth_level != "manager" or auth_level != "admin":
+        if auth_level != "manager" and auth_level != "admin":
             return Response("Not authorized to create a new client", mimetype="text/plain", status=401)
 
         if len(data.keys()) >= 2 and len(data.keys()) <= 6:
