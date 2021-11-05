@@ -9,3 +9,4 @@ from app_package import jobs
 from app_package import users
 from app_package import assign
 from app_package import clients
+from app_package import cliass
