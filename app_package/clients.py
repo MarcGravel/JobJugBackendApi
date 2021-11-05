@@ -166,9 +166,10 @@ def api_clients():
             db_commit("UPDATE clients SET address=? WHERE id=?", [new_client["address"], created_client_id])
 
         if "email" in new_client:
-            if not check_email(new_client["email"]):
-                db_commit("DELETE FROM clients WHERE id=?", [created_client_id])
-                return Response("Invalid email address", mimetype="text/plain", status=400)
+            if(len(new_client["email"])) > 1:
+                if not check_email(new_client["email"]):
+                    db_commit("DELETE FROM clients WHERE id=?", [created_client_id])
+                    return Response("Invalid email address", mimetype="text/plain", status=400)
             if not check_length(new_client["email"], 0, 50):
                 db_commit("DELETE FROM clients WHERE id=?", [created_client_id])
                 return Response("email length max 50 characters", mimetype="text/plain", status=400)
