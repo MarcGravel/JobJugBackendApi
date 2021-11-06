@@ -7,17 +7,30 @@ JobJug API is the backend API for JobJug, a website for simple project managemen
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install.
 
 ```bash
-click==8.0.1
+bcrypt==3.2.0
+blinker==1.4
+borb==2.0.13
+certifi==2021.10.8
+cffi==1.15.0
+charset-normalizer==2.0.7
+click==8.0.3
 colorama==0.4.4
-decorator==5.1.0
 Flask==2.0.2
 Flask-Cors==3.0.10
+Flask-Mail==0.9.1
+fonttools==4.28.0
+idna==3.3
 itsdangerous==2.0.1
 Jinja2==3.0.2
-mariadb==1.0.7
+mariadb==1.0.8
 MarkupSafe==2.0.1
+Pillow==8.4.0
+pycparser==2.20
+python-barcode==0.13.1
+qrcode==7.3.1
+requests==2.26.0
 six==1.16.0
-validators==0.18.2
+urllib3==1.26.7
 Werkzeug==2.0.2
 ```
 
