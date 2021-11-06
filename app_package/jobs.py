@@ -185,7 +185,7 @@ def api_jobs():
             db_commit("UPDATE jobs SET location=? WHERE id=?", [new_job["location"], job_id])
 
         if "content" in new_job:
-            if not check_length(new_job["content"], 0, 15000):
+            if not check_length(new_job["content"], 0, 1700):
                 db_commit("DELETE FROM jobs WHERE id=?", [job_id])
                 return Response("content must be between 1 and 15,000 characters", mimetype="text/plain", status=400)
             db_commit("UPDATE jobs SET content=? WHERE id=?", [new_job["content"], job_id])
@@ -237,7 +237,7 @@ def api_jobs():
                 return Response("Client Id does not exist", mimetype="text/plain", status=400)
 
         if "notes" in new_job:
-            if not check_length(new_job["notes"], 0, 3000):
+            if not check_length(new_job["notes"], 0, 1700):
                 db_commit("DELETE FROM jobs WHERE id=?", [job_id])
                 return Response("notes must be between 1 and 3,000 characters", mimetype="text/plain", status=400)
             db_commit("UPDATE jobs SET notes=? WHERE id=?", [new_job["notes"], job_id])
@@ -319,7 +319,7 @@ def api_jobs():
                 db_commit("UPDATE jobs SET completed_date=? WHERE id=?", [upd_job["completedDate"], job_id])
 
         if "notes" in upd_job:
-            if not check_length(upd_job["notes"], 0, 3000):
+            if not check_length(upd_job["notes"], 0, 1700):
                 return Response("notes must be between 1 and 3,000 characters", mimetype="text/plain", status=400)
             db_commit("UPDATE jobs SET notes=? WHERE id=?", [upd_job["notes"], job_id])
 
@@ -336,7 +336,7 @@ def api_jobs():
                 db_commit("UPDATE jobs SET location=? WHERE id=?", [upd_job["location"], job_id])
 
             if "content" in upd_job:
-                if not check_length(upd_job["content"], 0, 15000):
+                if not check_length(upd_job["content"], 0, 1700):
                     return Response("content must be between 1 and 15,000 characters", mimetype="text/plain", status=400)
                 db_commit("UPDATE jobs SET content=? WHERE id=?", [upd_job["content"], job_id])
 
