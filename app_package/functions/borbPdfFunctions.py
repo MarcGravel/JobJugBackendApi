@@ -74,9 +74,13 @@ def _build_billing_and_shipping_information(client):
     return table_001
 
 #7 - add content table.
-def _build_content_table(content):  
-    table_001 = Table(number_of_rows=2, number_of_columns=1)    
+def _build_content_table(title, content):  
+    table_001 = Table(number_of_rows=4, number_of_columns=1)    
     
+    table_001.add(TableCell(Paragraph(title)))
+
+    table_001.add(TableCell(Paragraph(" ")))
+
     table_001.add(TableCell(Paragraph("Job Scope", font_color=X11Color("White")), background_color=HexColor("1167b1")))  
 
     color = HexColor("BBBBBB")    

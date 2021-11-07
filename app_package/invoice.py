@@ -22,6 +22,8 @@ from borb.pdf.pdf import PDF
 #temp file
 import tempfile
 
+import os
+
 #email package
 from flask_mail import Mail
 from flask_mail import Message
@@ -181,6 +183,13 @@ def api_invoice():
                 else:
                     clean_data[k] = v
 
+            #if invoice exists with current job, delete the old invoice before creating new
+            invoice_exists = db_fetchone_index("SELECT EXISTS(SELECT id FROM invoices WHERE job_id=?)", [clean_data["jobId"]])
+
+            #if exists, delete before adding new invoice
+            if invoice_exists == 1:
+                db_commit("DELETE FROM invoices WHERE job_id=?", [clean_data["jobId"]])
+
             #generate invoice id
             db_commit("INSERT INTO invoices(job_id, title, content, charged_amount) VALUES(?,?,?,?)", \
                         [clean_data["jobId"], clean_data["title"], clean_data["content"], clean_data["chargedAmount"]])
@@ -247,7 +256,7 @@ def api_invoice():
             page_layout.add(Paragraph(" "))
 
             #add content table
-            page_layout.add(_build_content_table(clean_data["content"]))
+            page_layout.add(_build_content_table(clean_data["title"],clean_data["content"]))
 
             #add cost table
             page_layout.add(_build_cost_table(clean_data["chargedAmount"]))
@@ -261,15 +270,44 @@ def api_invoice():
 
             msg.body = client["name"]+", thank you for working with us. Your invoice is attached."
 
+            #get current path:
+            root_path = os.getcwd()
+            destination_folder = root_path+"/invoices"
+            filepath = destination_folder+"/invoice" + str(invoice_id) + ".pdf"
+
             #build PDF
             try:
-                #temp file create and attach to message
-                with tempfile.TemporaryFile() as fp:
-                    PDF.dumps(fp, pdf)
-                    msg.attach("invoice" + str(invoice_id) + ".pdf", "invoice/pdf", fp.read())
+                with open(filepath, "wb") as pdf_file_handle:
+                    PDF.dumps(pdf_file_handle, pdf)
             except:
                 print("Cannot build PDF with invoice id "+str(invoice_id))
                 return Response("Unable to build PDF", mimetype="text/plain", status=500)
+
+            #attach pdf to email 
+            try:
+                with open(filepath, "rb") as fp:
+                    msg.attach("invoice"+str(invoice_id)+".pdf", "invoice/pdf", fp.read())
+            except:
+                print("Cannot attach invoice "+str(invoice_id)+ " to email")
+                return Response("Unable attach pdf invoice to email", mimetype="text/plain", status=500)
+
+            #delete invoice from folder
+            try:
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+            except:
+                print("Cannot delete from folder - invoice "+str(invoice_id))
+                return Response("Cannot delete from folder - invoice "+str(invoice_id), mimetype="text/plain", status=500)
+
+            #build PDF
+            #try:
+                #temp file create and attach to message
+                #with tempfile.TemporaryFile() as fp:
+                    #PDF.dumps(fp, pdf)
+                    #msg.attach("invoice" + str(invoice_id) + ".pdf", "invoice/pdf", fp.read())
+            #except:
+                #print("Cannot build PDF with invoice id "+str(invoice_id))
+                #return Response("Unable to build PDF", mimetype="text/plain", status=500)
 
             #send email with pdf attachment
             try:
