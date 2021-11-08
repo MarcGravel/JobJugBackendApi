@@ -22,8 +22,6 @@ from borb.pdf.pdf import PDF
 #temp file
 import tempfile
 
-import os
-
 #email package
 from flask_mail import Mail
 from flask_mail import Message
@@ -58,9 +56,16 @@ def api_invoice():
             check_id_valid = db_fetchone_index("SELECT EXISTS(SELECT id FROM jobs WHERE id=?)", [job_id])
 
             if check_id_valid == 1:
-                #get the invoice based on jobId. seleects the latest invoice if the job has multiple invoices
-                invoice_info = db_fetchone("SELECT MAX(id), job_id, title, content, charged_amount FROM invoices WHERE job_id=?", [job_id])
+                #check if job has invoice
+                invoice_exists = db_fetchone_index("SELECT EXISTS(SELECT id FROM invoices WHERE job_id=?)", [job_id])
 
+                #if not exists, return error
+                if invoice_exists == 0:
+                    return Response("No invoice for this job", mimetype="text/plain", status=400)
+
+                #get the invoice based on jobId. selects the latest invoice if the job has and error and multiple invoices
+                invoice_info = db_fetchone("SELECT MAX(id), job_id, title, content, charged_amount FROM invoices WHERE job_id=?", [job_id])
+                
                 rounded_float = (str(round(invoice_info[4], 2)))
 
                 invoice = {
@@ -130,15 +135,16 @@ def api_invoice():
                 page_layout.add(Paragraph(" "))
 
                 #add content table
-                page_layout.add(_build_content_table(invoice["content"]))
+                page_layout.add(_build_content_table(invoice["title"],invoice["content"]))
 
                 #add cost table
                 page_layout.add(_build_cost_table(invoice["chargedAmount"]))
 
-                #build PDF
-                with tempfile.TemporaryFile() as fp:
-                    PDF.dumps(fp, pdf)
-                    return send_file(fp.read(), attachment_filename="invoice"+str(invoice["id"])+".pdf", as_attachment=True)
+                #build and send PDF
+                tmp = tempfile.TemporaryFile()
+                PDF.dumps(tmp, pdf)
+                tmp.seek(0) 
+                return send_file(tmp, as_attachment=True, mimetype='application/pdf', attachment_filename="invoice"+str(invoice["id"])+".pdf")
 
             else:
                 return Response("Job id does not exist", mimetype="text/plain", status=400)
@@ -270,44 +276,17 @@ def api_invoice():
 
             msg.body = client["name"]+", thank you for working with us. Your invoice is attached."
 
-            #get current path:
-            root_path = os.getcwd()
-            destination_folder = root_path+"/invoices"
-            filepath = destination_folder+"/invoice" + str(invoice_id) + ".pdf"
-
             #build PDF
             try:
-                with open(filepath, "wb") as pdf_file_handle:
-                    PDF.dumps(pdf_file_handle, pdf)
+                #temp file create and attach to message
+                tmp = tempfile.TemporaryFile()
+                PDF.dumps(tmp, pdf)
+                tmp.seek(0)
+                msg.attach("invoice" + str(invoice_id) + ".pdf", "invoice/pdf", tmp.read())
+                tmp.close()
             except:
                 print("Cannot build PDF with invoice id "+str(invoice_id))
                 return Response("Unable to build PDF", mimetype="text/plain", status=500)
-
-            #attach pdf to email 
-            try:
-                with open(filepath, "rb") as fp:
-                    msg.attach("invoice"+str(invoice_id)+".pdf", "invoice/pdf", fp.read())
-            except:
-                print("Cannot attach invoice "+str(invoice_id)+ " to email")
-                return Response("Unable attach pdf invoice to email", mimetype="text/plain", status=500)
-
-            #delete invoice from folder
-            try:
-                if os.path.exists(filepath):
-                    os.remove(filepath)
-            except:
-                print("Cannot delete from folder - invoice "+str(invoice_id))
-                return Response("Cannot delete from folder - invoice "+str(invoice_id), mimetype="text/plain", status=500)
-
-            #build PDF
-            #try:
-                #temp file create and attach to message
-                #with tempfile.TemporaryFile() as fp:
-                    #PDF.dumps(fp, pdf)
-                    #msg.attach("invoice" + str(invoice_id) + ".pdf", "invoice/pdf", fp.read())
-            #except:
-                #print("Cannot build PDF with invoice id "+str(invoice_id))
-                #return Response("Unable to build PDF", mimetype="text/plain", status=500)
 
             #send email with pdf attachment
             try:
