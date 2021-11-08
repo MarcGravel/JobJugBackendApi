@@ -221,37 +221,52 @@ def api_clients():
             return Response("Invalid amount of data sent", mimetype="text/plain", status=400)
 
         if "name" in upd_client:
-            if not check_length(upd_client["name"], 1, 60):
-                return Response("Name must be between 1 and 60 characters", mimetype="text/plain", status=400)
-            db_commit("UPDATE clients SET name=? WHERE id=?", [upd_client["name"], client_id])
+            if upd_client["name"] == '':
+                    pass
+            else:
+                if not check_length(upd_client["name"], 1, 60):
+                    return Response("Name must be between 1 and 60 characters", mimetype="text/plain", status=400)
+                db_commit("UPDATE clients SET name=? WHERE id=?", [upd_client["name"], client_id])
 
         if "company" in upd_client:
-            if not check_length(upd_client["company"], 0, 100):
-                db_commit("DELETE FROM clients WHERE id=?", [client_id])
-                return Response("Max 100 characters for company", mimetype="text/plain", status=400)
-            db_commit("UPDATE clients SET company=? WHERE id=?", [upd_client["company"], client_id])
+            if upd_client["company"] == '':
+                    pass
+            else:
+                if not check_length(upd_client["company"], 0, 100):
+                    db_commit("DELETE FROM clients WHERE id=?", [client_id])
+                    return Response("Max 100 characters for company", mimetype="text/plain", status=400)
+                db_commit("UPDATE clients SET company=? WHERE id=?", [upd_client["company"], client_id])
 
         if "address" in upd_client:
-            if not check_length(upd_client["address"], 0, 100):
-                db_commit("DELETE FROM clients WHERE id=?", [client_id])
-                return Response("Max 100 characters for address", mimetype="text/plain", status=400)
-            db_commit("UPDATE clients SET address=? WHERE id=?", [upd_client["address"], client_id])
+            if upd_client["address"] == '':
+                    pass
+            else:
+                if not check_length(upd_client["address"], 0, 100):
+                    db_commit("DELETE FROM clients WHERE id=?", [client_id])
+                    return Response("Max 100 characters for address", mimetype="text/plain", status=400)
+                db_commit("UPDATE clients SET address=? WHERE id=?", [upd_client["address"], client_id])
 
         if "email" in upd_client:
-            if(len(upd_client["email"])) > 1:
-                if not check_email(upd_client["email"]):
+            if upd_client["email"] == '':
+                    pass
+            else:
+                if(len(upd_client["email"])) > 1:
+                    if not check_email(upd_client["email"]):
+                        db_commit("DELETE FROM clients WHERE id=?", [client_id])
+                        return Response("Invalid email address", mimetype="text/plain", status=400)
+                if not check_length(upd_client["email"], 0, 50):
                     db_commit("DELETE FROM clients WHERE id=?", [client_id])
-                    return Response("Invalid email address", mimetype="text/plain", status=400)
-            if not check_length(upd_client["email"], 0, 50):
-                db_commit("DELETE FROM clients WHERE id=?", [client_id])
-                return Response("email length max 50 characters", mimetype="text/plain", status=400)
-            db_commit("UPDATE clients SET email=? WHERE id=?", [upd_client["email"], client_id])
+                    return Response("email length max 50 characters", mimetype="text/plain", status=400)
+                db_commit("UPDATE clients SET email=? WHERE id=?", [upd_client["email"], client_id])
 
         if "phone" in upd_client:
-            if not check_length(upd_client["phone"], 0, 20):
-                db_commit("DELETE FROM clients WHERE id=?", [client_id])
-                return Response("Phone number must be between 7 and 20 characters", mimetype="text/plain", status=400)
-            db_commit("UPDATE clients SET phone=? WHERE id=?", [upd_client["phone"], client_id])
+            if upd_client["phone"] == '':
+                    pass
+            else:
+                if not check_length(upd_client["phone"], 0, 20):
+                    db_commit("DELETE FROM clients WHERE id=?", [client_id])
+                    return Response("Phone number must be between 7 and 20 characters", mimetype="text/plain", status=400)
+                db_commit("UPDATE clients SET phone=? WHERE id=?", [upd_client["phone"], client_id])
 
         #get updated client from db and send back in a valid dict
         req_upd_client = db_fetchone("SELECT * FROM clients WHERE id=?", [client_id])

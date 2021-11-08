@@ -332,16 +332,22 @@ def api_users():
                 db_commit("UPDATE users SET password=? WHERE id=?", [hashed_pass, user_id])
 
             if "phone" in upd_user:
-                if not check_length(upd_user["phone"], 7, 20):
-                    return Response("phone number must be between 7 and 20 characters", mimetype="text/plain", status=400)
-                db_commit("UPDATE users SET phone=? WHERE id=?", [upd_user["phone"], user_id])
+                if upd_user["phone"] == '':
+                    pass
+                else:
+                    if not check_length(upd_user["phone"], 7, 20):
+                        return Response("phone number must be between 7 and 20 characters", mimetype="text/plain", status=400)
+                    db_commit("UPDATE users SET phone=? WHERE id=?", [upd_user["phone"], user_id])
             
             if "hourlyRate" in upd_user:
-                try:
-                    rate_floated = float(upd_user["hourlyRate"])
-                    db_commit("UPDATE users SET hourly_rate=? WHERE id=?", [rate_floated, user_id])
-                except ValueError:
-                    return Response("hourlyRate must be a number", mimetype="text/plain", status=400)
+                if upd_user["hourlyRate"] == '':
+                    pass
+                else:
+                    try:
+                        rate_floated = float(upd_user["hourlyRate"])
+                        db_commit("UPDATE users SET hourly_rate=? WHERE id=?", [rate_floated, user_id])
+                    except ValueError:
+                        return Response("hourlyRate must be a number", mimetype="text/plain", status=400)
             
             #get updated user from db and send back in a valid dict
             req_upd_user = db_fetchone("SELECT id, auth_level, name, email, phone, hourly_rate FROM users WHERE id=?", [user_id])

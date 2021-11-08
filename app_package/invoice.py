@@ -268,11 +268,12 @@ def api_invoice():
             page_layout.add(_build_cost_table(clean_data["chargedAmount"]))
 
 
-            ### set up email message 
+            ### set up email message
+            ### at testing user variable receipMailAddr 
             ### at production -  receip mail address should be client["email"]
             msg= Message("Thank you for choosing TheCompany.",
                 sender= senderMailAddr,
-                recipients=[receipMailAddr])
+                recipients=[client["email"]])
 
             msg.body = client["name"]+", thank you for working with us. Your invoice is attached."
 
