@@ -46,6 +46,12 @@ Werkzeug==2.0.2
 
 [Clients](#clients-apiclients)
 
+[Assign Employee](#assign-employee-apiassign)
+
+[Assign Clients](#assign-clients-apicliass)
+
+[Invoice](#invoice-apiinvoice)
+
 # Usage
 
 ## User Login: /api/login
