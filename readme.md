@@ -2,6 +2,14 @@
 
 JobJug API is the backend API for JobJug, a website for simple project management in the contracting industry.
 
+The JobJug API is designed only to be used with the JobJug website
+
+See JobJug frontend repo [here](https://github.com/MarcGravel/JobJug)
+
+Tech stack:
+
+Backend: Python, Flask, MariaDb
+
 ## Installation
 
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install.
