@@ -284,7 +284,7 @@ def api_users():
             if len(data.keys()) >= 3 and len(data.keys()) <= 8:
                 upd_user = pop_dict_req(data)
             else:
-                return Response("Invalid amount of data sent", mimetype="text/plain", status=400)
+                return Response("Invalid amountt of data sent", mimetype="text/plain", status=400)
 
             if "authLevel" in upd_user:
                 #checks auth level value is valid

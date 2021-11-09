@@ -696,3 +696,245 @@ JSON Data Sent:
 
 No JSON Data Returned: 
 ```
+
+## Assign Employees: /api/assign
+The assign end point supports GET, POST, and DELETE methods.
+
+### GET
+HTTP success code: 200
+
+GET will return all employees assigned to the jobId sent
+
+Required Data in headers: {"sessionToken"}
+
+Required Params: {"jobId"}
+```json
+Example Data:
+
+Headers: 
+    { 
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
+        "Content-Type": "application/json"
+    }
+
+JSON Params Sent:
+    { 
+        "jobId": "14" 
+    }
+
+JSON Data Returned: 
+    [
+        {
+            "userId": 2,
+            "authLevel": "employee",
+            "name": "John Smith",
+            "email": "john@gmail.com",
+            "phone": "555-555-9999"
+        }
+    ]
+```
+### POST
+HTTP success code: 201
+
+Only managers and admin can post employee assignment to jobs
+
+POST will assign a new employee to a specified job ID
+
+Multiple employees are able to be assigned to a single job.
+
+And error will return if employee already assigned to job
+
+Required Data: {"sessionToken", "userId", "jobId"}
+
+```json
+Example Data:
+
+JSON Data Sent:
+    {
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X", 
+        "jobId": "14",
+        "userId": "2" 
+    }
+
+JSON Data Returned: 
+    {
+        "message": "user is assigned to job"
+    }
+```
+
+### DELETE
+HTTP success code: 204
+
+Only managers and admin can delete employee assignments
+
+DELETE will remove assignment of employee to a specified job ID
+
+And error will return if employee is not assigned to job
+
+Required Data: {"sessionToken", "userId", "jobId"}
+
+```json
+Example Data:
+
+JSON Data Sent:
+    {
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X", 
+        "jobId": "14",
+        "userId": "2" 
+    }
+
+No JSON Data Returned
+```
+
+## Assign Clients: /api/cliass
+The cliass end point supports GET, POST, and DELETE methods.
+
+### GET
+HTTP success code: 200
+
+GET will return all clients assigned tto jobs if no data sent
+
+If you want a specific assignemnt returned, send the jobId
+
+Employees will only receive info on clients assigned to jobs they are also assigned to
+
+Required Data in headers: {"sessionToken"}
+
+Optional Params: {"jobId"}
+```json
+Example Data:
+
+Headers: 
+    { 
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
+        "Content-Type": "application/json"
+    }
+
+JSON Params Sent:
+    { 
+        "jobId": "14" 
+    }
+
+JSON Data Returned: 
+    [
+        {
+            "clientId": 1,
+            "name": "Chris Webber",
+            "company": "Private",
+            "address": "121 Westhills Road",
+            "email": "chris21@gmail.com",
+            "phone": "604-555-2342"
+        },
+        {
+            "clientId": 2,
+            "name": "Jane Mack",
+            "company": "Canada Post",
+            "address": "66 NorthVan Road",
+            "email": "jane44@post.com",
+            "phone": "604-555-1267"
+        },
+    ]
+```
+### POST
+HTTP success code: 201
+
+Only managers and admin can post client assignment to jobs
+
+POST will assign a new client to a specified job Id
+
+And error will return if client already assigned to job
+
+Required Data: {"sessionToken", "clientId", "jobId"}
+
+```json
+Example Data:
+
+JSON Data Sent:
+    {
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X", 
+        "jobId": "14",
+        "clientId": "2" 
+    }
+
+JSON Data Returned: 
+    {
+        "message": "client is assigned to job"
+    }
+```
+
+### DELETE
+HTTP success code: 204
+
+Only managers and admin can delete client assignments
+
+DELETE will remove assignment of client to a specified job ID
+
+And error will return if client is not assigned to job
+
+Required Data: {"sessionToken", "clientId", "jobId"}
+
+```json
+Example Data:
+
+JSON Data Sent:
+    {
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X", 
+        "jobId": "14",
+        "clientId": "2" 
+    }
+
+No JSON Data Returned
+```
+
+## Invoice: /api/invoice
+The invoice end point supports GET and POST methods.
+
+### GET
+
+GET will return an invoice in .pdf format that will download from suers browser
+
+Only managers and admin can GET invoices
+
+Send jobId to received the PDF file
+
+The PDF will be built each get request according to the data in the jobId and
+the clientId associated to that job
+
+Required Data in headers: {"sessionToken"}
+
+Required Params: {"jobId"}
+```json
+Example Data:
+
+Headers: 
+    { 
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X",
+        "Content-Type": "application/json"
+    }
+
+JSON Params Sent:
+    { 
+        "jobId": "14" 
+    }
+```
+.pdf file is returned.
+
+### POST
+
+POST will create a .pdf file and automatically send in email to the client
+whos clientId is attached to the jobId sent.
+
+This method is automatic and will build and send the file immediately.
+
+Required Data: {"sessionToken", "jobId"}
+
+```json
+Example Data:
+
+JSON Data Sent:
+    {
+        "sessionToken": "5R3pkYsHZDgI4nhXM3Is9X", 
+        "jobId": "14",
+    }
+```
+.pdf file built and sent by email to client.
