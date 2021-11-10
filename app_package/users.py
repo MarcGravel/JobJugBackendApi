@@ -21,10 +21,21 @@ def api_users():
                 all_users = db_fetchall("SELECT id, auth_level, name, email, phone, hourly_rate FROM users")
                 all_users_list = []
 
-                #create return dict and send
+                #create return dict
                 for a in all_users:
                     user = pop_user_all(a)
                     all_users_list.append(user)
+                    
+                #get userId from token 
+                user_id = db_fetchone_index("SELECT user_id FROM user_session WHERE session_token=?", [token])
+                
+                #remove all hourly rates from other managers - managers cannot see other managers pay rate
+                for user in all_users_list:
+                    if auth_level == "manager":
+                        if user["authLevel"] == 'manager' and user["userId"] != user_id:
+                            del user["hourlyRate"]
+                        if user["authLevel"] == 'admin':
+                            del user["hourlyRate"]
                 
                 return Response (json.dumps(all_users_list),
                                 mimetype="application/json",
