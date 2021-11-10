@@ -11,3 +11,4 @@ from app_package import assign
 from app_package import clients
 from app_package import cliass
 from app_package import invoice
+from app_package import password
