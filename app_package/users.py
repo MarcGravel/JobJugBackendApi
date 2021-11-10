@@ -66,10 +66,20 @@ def api_users():
                 all_users = db_fetchall("SELECT id, auth_level, name, email, phone FROM users")
                 all_users_list = []
 
-                #create return dict and send
+                #create return dict 
                 for a in all_users:
                     user = pop_user_emp(a)
                     all_users_list.append(user)
+                    
+                #get userId from token 
+                user_id = db_fetchone_index("SELECT user_id FROM user_session WHERE session_token=?", [token])
+                #get hourly rate of employee
+                emp_rate = db_fetchone_index("SELECT hourly_rate FROM users WHERE id=?", [user_id])
+                
+                #adds hourly rate for employee who requested Get
+                for user in all_users_list:
+                    if user["userId"] == user_id:
+                        user["hourlyRate"] = emp_rate
                 
                 return Response (json.dumps(all_users_list),
                                 mimetype="application/json",
