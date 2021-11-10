@@ -1,4 +1,5 @@
 from flask import send_file
+from flask.helpers import make_response
 from app_package import app
 from flask import request, Response
 from app_package.functions.dataFunctions import get_auth
@@ -139,12 +140,17 @@ def api_invoice():
 
                 #add cost table
                 page_layout.add(_build_cost_table(invoice["chargedAmount"]))
+                
+                filename = "invoice"+str(invoice["id"])+".pdf"
 
                 #build and send PDF
                 tmp = tempfile.TemporaryFile()
                 PDF.dumps(tmp, pdf)
-                tmp.seek(0) 
-                return send_file(tmp, as_attachment=True, mimetype='application/pdf', attachment_filename="invoice"+str(invoice["id"])+".pdf")
+                tmp.seek(0)
+                resp = make_response(send_file(tmp, as_attachment=True, attachment_filename=filename))
+                #must add below to headers to have Content-disposition show on response, which is where filename is stored.
+                resp.headers['Access-Control-Expose-Headers'] = 'Content-Disposition'
+                return resp
 
             else:
                 return Response("Job id does not exist", mimetype="text/plain", status=400)
