@@ -150,7 +150,6 @@ def api_invoice():
                 resp = make_response(send_file(tmp, as_attachment=True, attachment_filename=filename))
                 #must add below to headers to have Content-disposition show on response, which is where filename is stored.
                 resp.headers['Access-Control-Expose-Headers'] = 'Content-Disposition'
-                resp.headers['Access-Control-Allow-Origin'] = 'https://jobjug.ca'
                 return resp
 
             else:
