@@ -53,6 +53,35 @@ def _build_invoice_information(invoice_id):
     
     return table_001
 
+#for build of copy invoice, not original date
+def _build_invoice_information_COPY(invoice_id, date):
+    table_001 = Table(number_of_rows=5, number_of_columns=3)
+	
+    table_001.add(Paragraph("123 Main Street"))    
+    table_001.add(Paragraph("Date", font="Helvetica-Bold", horizontal_alignment=Alignment.RIGHT))    
+    table_001.add(Paragraph(date))
+	
+    table_001.add(Paragraph("Vancouver, B.C, V5N 111"))    
+    table_001.add(Paragraph("Invoice #", font="Helvetica-Bold", horizontal_alignment=Alignment.RIGHT))
+    table_001.add(Paragraph("%i" % (invoice_id)))   
+	
+    table_001.add(Paragraph("604-555-1214"))    
+    table_001.add(Paragraph("Due Date", font="Helvetica-Bold", horizontal_alignment=Alignment.RIGHT))
+    table_001.add(Paragraph(date))
+	
+    table_001.add(Paragraph("thecompany@company.com"))    
+    table_001.add(Paragraph(" "))
+    table_001.add(Paragraph(" "))
+
+    table_001.add(Paragraph("www.thecompany.com"))
+    table_001.add(Paragraph(" "))
+    table_001.add(Paragraph(" "))
+
+    table_001.set_padding_on_all_cells(Decimal(2), Decimal(2), Decimal(2), Decimal(2))    		
+    table_001.no_borders()
+    
+    return table_001
+
 #6 - add billing and shipping info
 def _build_billing_and_shipping_information(client):  
     table_001 = Table(number_of_rows=6, number_of_columns=1)  
