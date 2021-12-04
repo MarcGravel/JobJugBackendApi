@@ -31,7 +31,6 @@ def api_password():
                 
                 #check if new password is same as old password
                 if password == new_pass:
-                    print(repr(password), repr(new_pass))
                     return Response("Can't use old password, try a new one.", mimetype="text/plain", status=400)
                 
                 #check length of new pass
